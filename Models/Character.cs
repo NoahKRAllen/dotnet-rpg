@@ -16,7 +16,7 @@ namespace dotnet_rpg.Models
 
         public int Defense { get; set; } = 10;
 
-        public RpgClass Class { get; set; }
+        public RpgClass Class { get; set; } = RpgClass.Archer;
 
     }
 }
