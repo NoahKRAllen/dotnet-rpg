@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Security.Claims;
 
 namespace dotnet_rpg.Services.CharacterService
 {
@@ -9,17 +10,22 @@ namespace dotnet_rpg.Services.CharacterService
 
         private readonly IMapper _mapper;
         private readonly DataContext _context;
-        public CharacterService(IMapper mapper, DataContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public CharacterService(IMapper mapper, DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
+        private int GetUserId() => int.Parse(_httpContextAccessor.HttpContext!.User
+            .FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             //the await tag allows the use of async calls, letting the program continue onto other tasks while awaiting the database's response
-            var dbCharacters = await _context.Characters.Where(c => c.User!.Id == userId).ToListAsync();
+            var dbCharacters = await _context.Characters.Where(c => c.User!.Id == GetUserId()).ToListAsync();
             // the => command is used to inline a function call, in this case grabbing the list of characters we got from the database and setting the Data variable to it
             //the mapper is an external tool that is used to swap from one class type to a similar one, through self-defined connections. Check the AutoMapperProfile to see those
             serviceResponse.Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
@@ -31,7 +37,8 @@ namespace dotnet_rpg.Services.CharacterService
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
             //FirstOrDefault, or in this case the Async variant, will cycle through the list on the database until it hits the first, which works well in the case of IDs that aren't 
             //shared. If it can find none, it returns either a pre-defined default, or null.
-            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+            var dbCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == id && c.User!.Id == GetUserId());
             
             serviceResponse.Data = _mapper.Map<GetCharacterDto>(dbCharacter);
             return serviceResponse; 
@@ -41,11 +48,17 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             var character = _mapper.Map<Character>(newCharacter);
+            character.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId());
+
+
             _context.Characters.Add(character);
             //SaveChangesAsync is necessary for any function that wants to modify the database
             await _context.SaveChangesAsync();
             serviceResponse.Data = 
-                await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+                await _context.Characters
+                .Where(c => c.User!.Id == GetUserId())
+                .Select(c => _mapper.Map<GetCharacterDto>(c))
+                .ToListAsync();
 
             return serviceResponse;
         }
@@ -56,7 +69,8 @@ namespace dotnet_rpg.Services.CharacterService
 
             try
             {
-                var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+                var character = await _context.Characters
+                    .FirstOrDefaultAsync(c => c.Id == id && c.User!.Id == GetUserId());
 
                 if (character is null)
                 {
@@ -67,7 +81,9 @@ namespace dotnet_rpg.Services.CharacterService
 
                 await _context.SaveChangesAsync();
 
-                serviceResponse.Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+                serviceResponse.Data = await _context.Characters
+                    .Where(c => c.User!.Id == GetUserId())
+                    .Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -84,8 +100,10 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 var character = 
-                    await _context.Characters.FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
-                if(character is null)
+                    await _context.Characters
+                        .Include(c => c.User)
+                        .FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
+                if(character is null || character.User!.Id != GetUserId())
                 {
                     throw new Exception($"Character with Id '{updatedCharacter.Id}' not found");
                 }

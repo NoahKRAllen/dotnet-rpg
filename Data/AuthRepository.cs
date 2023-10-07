@@ -97,7 +97,9 @@ namespace dotnet_rpg.Data
 
             var appSettingsToken = _configuration.GetSection("AppSettings:Token").Value;
             if (appSettingsToken is null)
+            {
                 throw new Exception("AppSettings Token is null");
+            }
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(System.Text.Encoding.UTF8
                 .GetBytes(appSettingsToken));
