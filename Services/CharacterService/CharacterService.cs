@@ -18,7 +18,10 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
+            //the await tag allows the use of async calls, letting the program continue onto other tasks while awaiting the database's response
             var dbCharacters = await _context.Characters.ToListAsync();
+            // the => command is used to inline a function call, in this case grabbing the list of characters we got from the database and setting the Data variable to it
+            //the mapper is an external tool that is used to swap from one class type to a similar one, through self-defined connections. Check the AutoMapperProfile to see those
             serviceResponse.Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
             return serviceResponse;
         }
@@ -26,7 +29,8 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
         {
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
-
+            //FirstOrDefault, or in this case the Async variant, will cycle through the list on the database until it hits the first, which works well in the case of IDs that aren't 
+            //shared. If it can find none, it returns either a pre-defined default, or null.
             var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
             
             serviceResponse.Data = _mapper.Map<GetCharacterDto>(dbCharacter);
@@ -38,6 +42,7 @@ namespace dotnet_rpg.Services.CharacterService
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             var character = _mapper.Map<Character>(newCharacter);
             _context.Characters.Add(character);
+            //SaveChangesAsync is necessary for any function that wants to modify the database
             await _context.SaveChangesAsync();
             serviceResponse.Data = 
                 await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
@@ -55,6 +60,7 @@ namespace dotnet_rpg.Services.CharacterService
 
                 if (character is null)
                 {
+                    //This is in place to override the default exception thrown with a null reference, to give a more useful error message
                     throw new Exception($"Character with Id '{id}' not found");
                 }
                 _context.Characters.Remove(character);

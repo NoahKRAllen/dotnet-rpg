@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace dotnet_rpg.Controllers
 {
+    //This attribute is used to denote that the following class is used to serve HTTP API responses
     [ApiController]
     [Route("api/[controller]")]
     public class CharacterController: ControllerBase
@@ -18,27 +19,29 @@ namespace dotnet_rpg.Controllers
         }
 
         [HttpGet("GetAll")]
-        //This combines the following routing markers
-        //[HttpGet]
-        //[Route("api/[controller]")]
+        //HttpGet requests a representation of a specified resource, in this case all characters on the database
+        //Should never be sending any data with methods marked as HttpGet
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
         {
             return Ok(await _characterService.GetAllCharacters());
         }
 
         [HttpGet("{id}")]
+        //Labeled with id as the controller, meaning any id based get call will call this function
         public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> GetSingle(int id)
         {
             return Ok(await _characterService.GetCharacterById(id));
         }
 
         [HttpPost]
+        //Used to submit data of the specified resource, often causing a change or side effects on the database
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> AddCharacter(AddCharacterDto newCharacter)
         {
             return Ok(await _characterService.AddCharacter(newCharacter));
         }
 
         [HttpPut]
+        //Used to replace all current representations of the target on the database with the requested payload
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> UpdateCharacter(UpdateCharacterDto updatedCharacter)
         {
             var response = await _characterService.UpdateCharacter(updatedCharacter);
@@ -50,6 +53,7 @@ namespace dotnet_rpg.Controllers
         }
 
         [HttpDelete("{id}")]
+        //Used to delete the specified resource from the database
         public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> DeleteCharacter(int id)
         {
             var response = await _characterService.DeleteCharacter(id);

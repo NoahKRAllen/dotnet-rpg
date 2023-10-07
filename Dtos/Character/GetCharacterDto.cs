@@ -2,7 +2,9 @@
 
 namespace dotnet_rpg.Dtos.Character
 {
-	public class GetCharacterDto
+    //DTO stands for Data Transfer Object
+
+    public class GetCharacterDto
 	{
         public int Id { get; set; }
 
