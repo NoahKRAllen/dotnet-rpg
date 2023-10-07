@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace dotnet_rpg.Controllers
 {
     //This attribute is used to denote that the following class is used to serve HTTP API responses
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CharacterController: ControllerBase
@@ -17,13 +20,15 @@ namespace dotnet_rpg.Controllers
         {
             _characterService = characterService;
         }
-
+        //This header would allow the use of the function it is attached to without the authorization
+        //[AllowAnonymous]
         [HttpGet("GetAll")]
         //HttpGet requests a representation of a specified resource, in this case all characters on the database
         //Should never be sending any data with methods marked as HttpGet
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
         {
-            return Ok(await _characterService.GetAllCharacters());
+            int userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value);
+            return Ok(await _characterService.GetAllCharacters(userId));
         }
 
         [HttpGet("{id}")]

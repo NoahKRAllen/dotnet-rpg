@@ -15,11 +15,11 @@ namespace dotnet_rpg.Services.CharacterService
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             //the await tag allows the use of async calls, letting the program continue onto other tasks while awaiting the database's response
-            var dbCharacters = await _context.Characters.ToListAsync();
+            var dbCharacters = await _context.Characters.Where(c => c.User!.Id == userId).ToListAsync();
             // the => command is used to inline a function call, in this case grabbing the list of characters we got from the database and setting the Data variable to it
             //the mapper is an external tool that is used to swap from one class type to a similar one, through self-defined connections. Check the AutoMapperProfile to see those
             serviceResponse.Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
