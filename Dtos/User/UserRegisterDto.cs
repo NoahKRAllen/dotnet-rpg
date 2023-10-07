@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace dotnet_rpg.Dtos
+namespace dotnet_rpg.Dtos.User
 {
 	public class UserRegisterDto
 	{
