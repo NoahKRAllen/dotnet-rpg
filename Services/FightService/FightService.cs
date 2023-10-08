@@ -119,6 +119,12 @@ namespace dotnet_rpg.Services.FightService
                     .ToListAsync();
 
                 bool defeated = false;
+                if(characters.Count == 0)
+                {
+                    response.Success = false;
+                    response.Message = "There wasn't any fighters in the count.";
+                    return response;
+                }
                 while(!defeated)
                 {
                     foreach(var attacker in characters)

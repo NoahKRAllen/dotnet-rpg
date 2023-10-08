@@ -146,6 +146,8 @@ namespace dotnet_rpg.Services.CharacterService
                 var character = 
                     await _context.Characters
                         .Include(c => c.User)
+                        .Include(c => c.Skills)
+                        .Include(c => c.Weapon)
                         .FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
                 if(character is null || character.User!.Id != GetUserId())
                 {
