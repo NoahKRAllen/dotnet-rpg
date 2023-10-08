@@ -20,5 +20,7 @@ namespace dotnet_rpg.Dtos.Character
 
         public RpgClass Class { get; set; } = RpgClass.Archer;
 
+        public GetWeaponDto? Weapon { get; set; } 
+
     }
 }
