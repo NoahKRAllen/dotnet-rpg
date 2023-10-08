@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using dotnet_rpg.Data;
 
@@ -11,9 +12,11 @@ using dotnet_rpg.Data;
 namespace dotnet_rpg.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231008004553_Skills")]
+    partial class Skills
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,13 +51,7 @@ namespace dotnet_rpg.Migrations
                     b.Property<int>("Class")
                         .HasColumnType("int");
 
-                    b.Property<int>("Defeats")
-                        .HasColumnType("int");
-
                     b.Property<int>("Defense")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Fights")
                         .HasColumnType("int");
 
                     b.Property<int>("HitPoints")
@@ -71,9 +68,6 @@ namespace dotnet_rpg.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Victories")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -101,38 +95,6 @@ namespace dotnet_rpg.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Skills");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Damage = 15,
-                            Name = "Fireball"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Damage = 20,
-                            Name = "Lightning Shock"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Damage = 20,
-                            Name = "Ice Spear"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Damage = 15,
-                            Name = "Frenzy"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Damage = 25,
-                            Name = "Death Coil"
-                        });
                 });
 
             modelBuilder.Entity("dotnet_rpg.Models.User", b =>

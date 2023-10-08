@@ -43,6 +43,11 @@ namespace dotnet_rpg.Controllers
         {
             return Ok(await _characterService.AddCharacter(newCharacter));
         }
+        [HttpPost("Skill")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> AddCharacterSkill(AddCharacterSkillDto newCharacterSkill)
+        {
+            return Ok(await _characterService.AddCharacterSkill(newCharacterSkill));
+        }
 
         [HttpPut]
         //Used to replace all current representations of the target on the database with the requested payload
